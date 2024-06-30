@@ -1,3 +1,0 @@
-Tractography.obj filter=lfs diff=lfs merge=lfs -text
-tractography3.obj filter=lfs diff=lfs merge=lfs -text
-Tractography[[:space:]]1.obj filter=lfs diff=lfs merge=lfs -text
