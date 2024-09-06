@@ -42,18 +42,24 @@ public class RRTStarPathPlanner : MonoBehaviour
                 {
                     Debug.Log("Target reached!");
 
-                    List<Vector3> path = Utilities.ExtractPath(newNode);
+                    List<Vector3> path = Utilities.ExtractPath(newNode, stepSize);
+                    Debug.Log($"Number of points in path before smoothing: {path.Count}");
 
                     // Lissage du chemin avec Bézier Cubique
-                    List<Vector3> smoothedPath = Utilities.SmoothPathWithBezier(path, 20); // Plus de points d'interpolation pour un lissage plus précis
+                    List<Vector3> smoothedPath = Utilities.SmoothPathWithBezier(path, 2); // Réduire le nombre de points d'interpolation
+                    Debug.Log($"Number of points in path after smoothing: {smoothedPath.Count}");
+
+                    // Simplification du chemin après lissage
+                    List<Vector3> simplifiedSmoothedPath = Utilities.SimplifyPath(smoothedPath, 0.5f);
+                    Debug.Log($"Number of points after simplification: {simplifiedSmoothedPath.Count}");
 
                     // Calcul de la longueur du chemin lissé
-                    pathLength = Utilities.CalculatePathLength(smoothedPath);
+                    pathLength = Utilities.CalculatePathLength(simplifiedSmoothedPath);
 
-                    // Visualiser le chemin lissé
-                    for (int j = 0; j < smoothedPath.Count - 1; j++)
+                    // Visualiser le chemin simplifié et lissé
+                    for (int j = 0; j < simplifiedSmoothedPath.Count - 1; j++)
                     {
-                        Debug.DrawLine(smoothedPath[j], smoothedPath[j + 1], Color.green, 20f);
+                        Debug.DrawLine(simplifiedSmoothedPath[j], simplifiedSmoothedPath[j + 1], Color.green, 20f);
                     }
 
                     Debug.Log("Smoothed Path Length: " + pathLength);
