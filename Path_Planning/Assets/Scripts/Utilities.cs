@@ -56,7 +56,7 @@ public static class Utilities
         return true;
     }
 
-    public static List<Vector3> ExtractPath(Node endNode)
+    public static List<Vector3> ExtractPath(Node endNode, float stepSize)
     {
         List<Vector3> path = new List<Vector3>();
         Node currentNode = endNode;
@@ -67,35 +67,46 @@ public static class Utilities
         }
         path.Reverse();
 
-        // Visualiser le chemin
-        for (int i = 0; i < path.Count - 1; i++)
+        // Éliminer les points redondants
+        List<Vector3> filteredPath = new List<Vector3> { path[0] };
+        for (int i = 1; i < path.Count; i++)
         {
-            Debug.DrawLine(path[i], path[i + 1], Color.red, 20f);
+            if (Vector3.Distance(path[i], path[i - 1]) > stepSize / 2)
+            {
+                filteredPath.Add(path[i]);
+            }
         }
 
-        return path;
+        return filteredPath;
     }
 
     public static float CalculatePathLength(List<Vector3> path)
     {
+        if (path == null || path.Count < 2)
+        {
+            Debug.LogWarning("Path is null or has less than 2 points.");
+            return 0.0f;
+        }
+
         float totalDistance = 0.0f;
 
         for (int i = 0; i < path.Count - 1; i++)
         {
-            totalDistance += Vector3.Distance(path[i], path[i + 1]);
+            float distance = Vector3.Distance(path[i], path[i + 1]);
+            totalDistance += distance;
         }
 
-        return totalDistance/4;
+        return totalDistance;
     }
 
-    public static List<Vector3> SmoothPathWithBezier(List<Vector3> path, int interpolationPoints = 10)
+    public static List<Vector3> SmoothPathWithBezier(List<Vector3> path, int interpolationPoints = 3)
     {
         if (path == null || path.Count < 4) return path;
 
         List<Vector3> smoothedPath = new List<Vector3>();
 
-        // Lissage par courbes Bézier cubiques
-        for (int i = 0; i < path.Count - 3; i++)
+        // Lissage par courbes Bézier cubiques avec moins d'interpolation
+        for (int i = 0; i < path.Count - 3; i += 3) // Lisser un segment sur trois
         {
             Vector3 p0 = path[i];
             Vector3 p1 = path[i + 1];
@@ -105,7 +116,8 @@ public static class Utilities
             for (int j = 0; j <= interpolationPoints; j++)
             {
                 float t = j / (float)interpolationPoints;
-                smoothedPath.Add(Bezier(p0, p1, p2, p3, t));
+                Vector3 point = Bezier(p0, p1, p2, p3, t);
+                smoothedPath.Add(point);
             }
         }
 
@@ -130,6 +142,23 @@ public static class Utilities
         p += ttt * p3; // t^3 * p3
 
         return p;
+    }
+
+    public static List<Vector3> SimplifyPath(List<Vector3> path, float minDistance = 0.5f)
+    {
+        if (path == null || path.Count < 2) return path;
+
+        List<Vector3> simplifiedPath = new List<Vector3> { path[0] };  // Ajouter le premier point
+
+        for (int i = 1; i < path.Count; i++)
+        {
+            if (Vector3.Distance(simplifiedPath[simplifiedPath.Count - 1], path[i]) > minDistance)
+            {
+                simplifiedPath.Add(path[i]);
+            }
+        }
+
+        return simplifiedPath;
     }
 
     public static List<Node> RewireNodes(List<Node> nodes, Node newNode, float rewireRadius)
