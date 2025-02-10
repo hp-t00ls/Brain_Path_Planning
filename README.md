@@ -1,1 +1,1 @@
-You will find hereby the C# program implemented on Unity applying the A* path planning algorythm smoothed out to reach with the safest as possible way (1u from obstacles) a brain tumor segmented on 3D Slicer.
+You will find hereby the C# program implemented on Unity applying the RRT* path planning algorythm smoothed out to reach with the safest as possible way (1u from obstacles) a brain tumor segmented on 3D Slicer.
